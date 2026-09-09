@@ -1,0 +1,16 @@
+.card{
+  padding: 50px 70px;
+  border-radius: 20px;
+  width: 300px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  height: 200px;
+  align-items: center;
+  text-align: center;
+  display: flex;
+  background-color: #51435e;
+}
+a{
+  text-decoration: none;
+}
