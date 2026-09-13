@@ -62,7 +62,7 @@ export default function Game(){
                     </div>
                 </div> 
                 </aside>
-                <div className="game-right">Трент алекс, Влахович, Витинья, Laporte, Bellingol, Bounou, Harry Kane, Theo Hernandes, Jordy Alba, Casteels, Kobel, Bacha, Modric, Bronze, Olmo, Ajer, Tokoz, Lisandro Martines
+                <div className="game-right">Трент алекс, Влахович, Витинья, Laporte, Bellingol, Bounou, Harry Kane, Theo Hernandes, Jordy Alba, Casteels, Kobel, Bacha, Modric, Bronze, Olmo, Ajer, Tokoz, Lisandro Martines, Gotze, Edegaard, Gabriel Jesus, Gnabri, Di lorenzo, Salah, Valverde, Gomez, Sterling, Rashford
                     <div className="left_panel">
                         <p className='made_moves'>Сделаные ходы</p>
                         <div className="moves_panel"></div>
