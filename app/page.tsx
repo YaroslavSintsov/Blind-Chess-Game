@@ -6,8 +6,8 @@ import CardMenuBtnPlay from "@/src/components/CardMenuBtn/CardMenuBtn";
 import CardMenuBtnTactics from "@/src/components/CardMenuBtn/CardMenuBtnTactics";
 import CardMenuBtnTrening from "@/src/components/CardMenuBtn/CardMenuBtnTrening";
 import Friends from "@/src/components/online-friends/friends";
-import Tactics from "../tactics/page";
-import Trening from '../trening/page';
+import Tactics from "./tactics/page";
+import Trening from './trening/page';
 import MenuBtn from "@/src/components/menu-btn";
 import Modal from "@/src/components/modal"; // Импорт компонента модального окна
 
