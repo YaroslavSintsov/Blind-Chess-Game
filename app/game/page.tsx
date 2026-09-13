@@ -6,13 +6,14 @@ import CardMenuBtnPlay from "@/src/components/CardMenuBtn/CardMenuBtn";
 import CardMenuBtnTactics from "@/src/components/CardMenuBtn/CardMenuBtnTactics";
 import CardMenuBtnTrening from "@/src/components/CardMenuBtn/CardMenuBtnTrening";
 import Friends from "@/src/components/online-friends/friends";
-import Game from "./Game";
-import Tactics from "./tactics";
-import Modal from "@/src/components/modal"; 
+import Tactics from "../tactics/page";
+import MenuBtn from "@/src/components/menu-btn";
+import Trening from '../trening/page';
+import Modal from "@/src/components/modal"; // Импорт компонента модального окна
 
-export default function Trening(){
+export default function Game(){
     const [activeTab, setActiveTab] = useState('menu');
-  
+    
     // Состояния для модальных окон
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [isHelpOpen, setIsHelpOpen] = useState(false);
@@ -20,47 +21,42 @@ export default function Trening(){
         <>
             <div className="menu-container">
                 <aside className="menu-left">
-                <div className="menu-wrapper">
-                    <div className="menu-top">
-                    <div className="menu-after">
-                        <p className="project-name">Blind chess master</p>
-                        <div className="account">
-                        <p className="account-title">Аккаунт</p>
-                        <div className="logo">
-                            <Image src="/user-icon.png" width={100} height={100} alt="User Icon" />
-                            <div className="info-group">
-                            <p>User123</p>
-                            <p>1600 elo</p>
+                          <div className="menu-wrapper">
+                            <div className="menu-top">
+                              <div className="menu-after">
+                                <p className="project-name">Blind chess master</p>
+                                <div className="account">
+                                  <p className="account-title">Аккаунт</p>
+                                  <div className="logo">
+                                    <Image src="/user-icon.png" width={100} height={100} alt="User Icon" />
+                                    <div className="info-group">
+                                      <p>User123</p>
+                                      <p>1600 elo</p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <hr />
+                              <div className="menu-before">
+                                <MenuBtn></MenuBtn>
+                              </div>
                             </div>
-                        </div>
-                        </div>
-                    </div>
-                    <hr />
-                    <div className="menu-before">
-                        <button 
-                        className={`menu-href ${activeTab === 'menu' ? 'active' : ''}`} 
-                        onClick={() => setActiveTab('menu')}
-                        >
-                        Главное меню
-                        </button>
-                    </div>
-                    </div>
-                    <div className="menu-bottom">
-                    {/* Кнопки вызова модальных окон */}
-                    <button 
-                        className="menu-href modal-btn" 
-                        onClick={() => setIsSettingsOpen(true)}
-                    >
-                        Настройки
-                    </button>
-                    <button 
-                        className="menu-href modal-btn" 
-                        onClick={() => setIsHelpOpen(true)}
-                    >
-                        Помощь
-                    </button>
-                    </div>
-                </div> 
+                            <div className="menu-bottom">
+                              {/* Кнопки вызова модальных окон */}
+                              <button 
+                                className="menu-href modal-btn" 
+                                onClick={() => setIsSettingsOpen(true)}
+                              >
+                                Настройки
+                              </button>
+                              <button 
+                                className="menu-href modal-btn" 
+                                onClick={() => setIsHelpOpen(true)}
+                              >
+                                Помощь
+                              </button>
+                            </div>
+                          </div> 
                 </aside>
                 <div className="game-right">
                     <div className="left_panel">
@@ -152,33 +148,33 @@ export default function Trening(){
                             </div>
                         </div>
                         <div className="game-info">
-                            <button className="btn">
-                                Начать заново
-                            </button>
-                            <button className="button-status">
-                                Посмотреть позицию
-                            </button>
+                            <p className="title-info">
+                                Информация о игре
+                            </p>
                             <div className="status list-item">
+                                <p>Статус игры</p>
                                 <button className="button-status">
-                                    Взять подсказку
+                                    Игра идет
                                 </button>
-                                <p>Stocfish: _</p>
-                                <button className="button-status">
-                                    Посмотреть угрозы
-                                </button>
+                            </div>
+                            <div className="status list-item">
+                                <p>Анализ Stocfish: ___</p>
+                                <p>Время игры: __:__</p>
+                            </div>
+                            <div className="last-move list-item">
+                                <p>Последний ход: ___</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-      {/* Модальное окно Настроек */}
             <Modal 
                 isOpen={isSettingsOpen} 
                 onClose={() => setIsSettingsOpen(false)} 
                 title="Настройки игры"
             >
-                <div className="setting-item">
-                <label htmlFor="sound">Звуковые эффекты:</label>
+                <div className="setting-item">ЦП 85 Врт 85
+                <label htmlFor="sound">Звуковые эффекты:</label> 
                 <input type="checkbox" id="sound" defaultChecked />
                 </div>
                 <div className="setting-item">

@@ -8,6 +8,6 @@ export default function CardMenuBtnPlay(){
         // <a href="@/src/pages/BlindGame" className="card" id="card-play">
         //     Игра в слепую онлайн
         // </a>
-        <Link href="/Game" className='card'>Игра в слепую онлайн</Link>
+        <Link href="/game" className='card'>Игра в слепую онлайн</Link>
     )
 }

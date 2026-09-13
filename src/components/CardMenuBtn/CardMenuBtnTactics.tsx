@@ -1,9 +1,8 @@
 import './cardMenuBtn.css'
+import Link from 'next/link'
 
 export default function CardMenuBtnTactics(){
     return(
-        <a href='' className="card" id="card-tactiks">
-            Задачи по игре в слепую
-        </a>
+        <Link href="/tactics" className='card'>Задачи по игре в слепую</Link>
     )
 }

@@ -6,11 +6,12 @@ import CardMenuBtnPlay from "@/src/components/CardMenuBtn/CardMenuBtn";
 import CardMenuBtnTactics from "@/src/components/CardMenuBtn/CardMenuBtnTactics";
 import CardMenuBtnTrening from "@/src/components/CardMenuBtn/CardMenuBtnTrening";
 import Friends from "@/src/components/online-friends/friends";
-import Tactics from "./tactics";
-import Trening from './trening';
+import MenuBtn from "@/src/components/menu-btn";
+import Game from "../game/page";
+import Trening from '../trening/page';
 import Modal from "@/src/components/modal"; // Импорт компонента модального окна
 
-export default function Game(){
+export default function Tactics(){
     const [activeTab, setActiveTab] = useState('menu');
     
     // Состояния для модальных окон
@@ -20,52 +21,48 @@ export default function Game(){
         <>
             <div className="menu-container">
                 <aside className="menu-left">
-                <div className="menu-wrapper">
-                    <div className="menu-top">
-                    <div className="menu-after">
-                        <p className="project-name">Blind chess master</p>
-                        <div className="account">
-                        <p className="account-title">Аккаунт</p>
-                        <div className="logo">
-                            <Image src="/user-icon.png" width={100} height={100} alt="User Icon" />
-                            <div className="info-group">
-                            <p>User123</p>
-                            <p>1600 elo</p>
+                          <div className="menu-wrapper">
+                            <div className="menu-top">
+                              <div className="menu-after">
+                                <p className="project-name">Blind chess master</p>
+                                <div className="account">
+                                  <p className="account-title">Аккаунт</p>
+                                  <div className="logo">
+                                    <Image src="/user-icon.png" width={100} height={100} alt="User Icon" />
+                                    <div className="info-group">
+                                      <p>User123</p>
+                                      <p>1600 elo</p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <hr />
+                              <div className="menu-before">
+                                <MenuBtn></MenuBtn>
+                              </div>
                             </div>
-                        </div>
-                        </div>
-                    </div>
-                    <hr />
-                    <div className="menu-before">
-                        <button 
-                        className={`menu-href ${activeTab === 'menu' ? 'active' : ''}`} 
-                        onClick={() => setActiveTab('menu')}
-                        >
-                        Главное меню
-                        </button>
-                    </div>
-                    </div>
-                    <div className="menu-bottom">
-                    {/* Кнопки вызова модальных окон */}
-                    <button 
-                        className="menu-href modal-btn" 
-                        onClick={() => setIsSettingsOpen(true)}
-                    >
-                        Настройки
-                    </button>
-                    <button 
-                        className="menu-href modal-btn" 
-                        onClick={() => setIsHelpOpen(true)}
-                    >
-                        Помощь
-                    </button>
-                    </div>
-                </div> 
+                            <div className="menu-bottom">
+                              {/* Кнопки вызова модальных окон */}
+                              <button 
+                                className="menu-href modal-btn" 
+                                onClick={() => setIsSettingsOpen(true)}
+                              >
+                                Настройки
+                              </button>
+                              <button 
+                                className="menu-href modal-btn" 
+                                onClick={() => setIsHelpOpen(true)}
+                              >
+                                Помощь
+                              </button>
+                            </div>
+                          </div> 
                 </aside>
-                <div className="game-right">Трент алекс, Влахович, Витинья, Laporte, Bellingol, Bounou, Harry Kane, Theo Hernandes, Jordy Alba, Casteels, Kobel, Bacha, Modric, Bronze, Olmo, Ajer, Tokoz, Lisandro Martines, Gotze, Edegaard, Gabriel Jesus, Gnabri, Di lorenzo, Salah, Valverde, Gomez, Sterling, Rashford
+                <div className="game-right">
                     <div className="left_panel">
-                        <p className='made_moves'>Сделаные ходы</p>
-                        <div className="moves_panel"></div>
+                        <p className="title">Задача 1</p>
+                        <p className='made_moves'>Ход ___, ___ в _ хода</p>
+                        <div className="moves_panel_chess">Random position</div>
                         <textarea className="move_input" placeholder="Введите свой следующий ход например (лf3, e.g)" ></textarea>
                     </div>
                     <div className="game-container">
@@ -152,21 +149,20 @@ export default function Game(){
                             </div>
                         </div>
                         <div className="game-info">
-                            <p className="title-info">
-                                Информация о игре
-                            </p>
-                            <div className="status list-item">
-                                <p>Статус игры</p>
-                                <button className="button-status">
-                                    Игра идет
-                                </button>
+                            <div className="reiting list-item">
+                                <div className="level_hard">
+                                    <p className="level">Уровень сложности:</p>
+                                    <select name="level_hard" id="">
+                                        <option value="easy">Легкий</option>
+                                        <option value="medium">Средний</option>
+                                        <option value="hard">Сложный</option>
+                                    </select>
+                                </div>
+                                <p className="raiting">Рейтинг: ____</p>
                             </div>
-                            <div className="status list-item">
-                                <p>Анализ Stocfish: ___</p>
-                                <p>Время игры: __:__</p>
-                            </div>
-                            <div className="last-move list-item">
-                                <p>Последний ход: ___</p>
+                            <div className="list-item">
+                                <button id="skip" className="btn">Пропустить задачу</button>
+                                <button id="skip" className="btn">Пропустить задачу</button>
                             </div>
                         </div>
                     </div>
@@ -177,8 +173,8 @@ export default function Game(){
                 onClose={() => setIsSettingsOpen(false)} 
                 title="Настройки игры"
             >
-                <div className="setting-item">ЦП 85 Врт 85
-                <label htmlFor="sound">Звуковые эффекты:</label> 
+                <div className="setting-item">
+                <label htmlFor="sound">Звуковые эффекты:</label>
                 <input type="checkbox" id="sound" defaultChecked />
                 </div>
                 <div className="setting-item">

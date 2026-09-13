@@ -6,9 +6,9 @@ import CardMenuBtnPlay from "@/src/components/CardMenuBtn/CardMenuBtn";
 import CardMenuBtnTactics from "@/src/components/CardMenuBtn/CardMenuBtnTactics";
 import CardMenuBtnTrening from "@/src/components/CardMenuBtn/CardMenuBtnTrening";
 import Friends from "@/src/components/online-friends/friends";
-import Game from "./Game";
-import Tactics from "./tactics";
-import Trening from './trening';
+import Tactics from "../tactics/page";
+import Trening from '../trening/page';
+import MenuBtn from "@/src/components/menu-btn";
 import Modal from "@/src/components/modal"; // Импорт компонента модального окна
 
 export default function Home() {
@@ -39,12 +39,7 @@ export default function Home() {
               </div>
               <hr />
               <div className="menu-before">
-                <button 
-                  className={`menu-href ${activeTab === 'menu' ? 'active' : ''}`} 
-                  onClick={() => setActiveTab('menu')}
-                >
-                  Главное меню
-                </button>
+                <MenuBtn></MenuBtn>
               </div>
             </div>
             <div className="menu-bottom">
@@ -83,7 +78,6 @@ export default function Home() {
             </>
           )}
 
-          {activeTab === 'game' && <Game />}
           {activeTab === 'tactics' && <Tactics />}
           {activeTab === 'training' && <Trening />}
         </main>
@@ -127,9 +121,6 @@ export default function Home() {
         </ul>
         <p>При возникновении проблем пишите в поддержку: <code>support@blindchess.com</code></p>
       </Modal>
-      <Game></Game>
-      <Tactics></Tactics>
-      <Trening></Trening>
     </>
   );
 }
