@@ -1,0 +1,30 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Monserrat", sans-serif;
+}
+
+.title{
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+.not-found {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+    background-color: #111111;
+}
+.not-found-message {
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+.not-found-link {
+    background-color: #51435e;
+    padding: 10px 20px;
+    border-radius: 4px;
+}

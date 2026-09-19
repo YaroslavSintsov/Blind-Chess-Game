@@ -167,9 +167,9 @@ export default function Trening(){
                     </div>
                 </div>
             </div>
-      {/* Модальное окно Настроек */}
+            {/* Модальное окно Настроек */}
             <Modal 
-                isOpen={isSettingsOpen} 
+                isOpen={isSettingsOpen}
                 onClose={() => setIsSettingsOpen(false)} 
                 title="Настройки игры"
             >

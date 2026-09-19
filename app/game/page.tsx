@@ -31,7 +31,7 @@ export default function Game(){
                                     <Image src="/user-icon.png" width={100} height={100} alt="User Icon" />
                                     <div className="info-group">
                                       <p>User123</p>
-                                      <p>1600 elo</p>
+                                      <p>____ elo</p>
                                     </div>
                                   </div>
                                 </div>

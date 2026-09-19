@@ -334,3 +334,11 @@ select{
   cursor: pointer;
   color: #ffffff;
 }
+.move_input{
+  color: #000000;
+}
+.menu-before{
+  margin-top: 16px;
+  background-color: transparent;
+  border: none;
+}

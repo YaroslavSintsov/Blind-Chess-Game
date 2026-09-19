@@ -70,22 +70,20 @@ export default function Home() {
                 <div onClick={() => setActiveTab('tactics')}>
                   <CardMenuBtnTactics />
                 </div>
-                <div onClick={() => setActiveTab('training')}>
-                  <CardMenuBtnTrening />
+                <div onClick={() => setActiveTab('training')}> -634 -169
+                  <CardMenuBtnTrening /> -2538 1345e
                 </div>
               </div>
               <Friends />
             </>
           )}
 
-          {activeTab === 'tactics' && <Tactics />}
-          {activeTab === 'training' && <Trening />}
         </main>
       </div>
 
       {/* Модальное окно Настроек */}
       <Modal 
-        isOpen={isSettingsOpen} 
+        isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)} 
         title="Настройки игры"
       >
