@@ -71,7 +71,7 @@ export default function Home() {
                   <CardMenuBtnTactics />
                 </div>
                 <div onClick={() => setActiveTab('training')}> -634 -169
-                  <CardMenuBtnTrening /> -2538 1345e
+                  <CardMenuBtnTrening />
                 </div>
               </div>
               <Friends />
@@ -94,7 +94,7 @@ export default function Home() {
         <div className="setting-item">
           <label htmlFor="blind-mode">Режим полной слепоты:</label>
           <input type="checkbox" id="blind-mode" />
-        </div>
+        </div>р
         <div className="setting-item">
           <label htmlFor="theme">Тема доски:</label>
           <select id="theme">
@@ -107,7 +107,7 @@ export default function Home() {
       {/* Модальное окно Помощи */}
       <Modal 
         isOpen={isHelpOpen} 
-        onClose={() => setIsHelpOpen(false)} 
+        onClose={() => setIsHelpOpen(false)}
         title="Помощь и правила"
       >
         <p><strong>Blind Chess Master</strong> — это сервис для игры в шахматы "вслепую".</p>
