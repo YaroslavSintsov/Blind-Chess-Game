@@ -239,7 +239,7 @@ select{
   background-color: #353535;
   padding: 10px 20px;
   border-radius: 10px;
-  cursor: pointer; 
+  cursor: pointer;
 }
 
 .modal-overlay {
@@ -341,4 +341,12 @@ select{
   margin-top: 16px;
   background-color: transparent;
   border: none;
+}
+.game-board,
+.game-board *,
+.game-board [data-piece] {
+  touch-action: none !important;
+  -webkit-touch-callout: none !important;
+  -webkit-user-select: none !important;
+  user-select: none !important;
 }
