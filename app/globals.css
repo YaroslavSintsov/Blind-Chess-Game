@@ -1,352 +1,603 @@
-*{
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Montserrat', sans-serif;
-  color: #ffffff;
-}
-a{
-  text-decoration: none;
-}
-.title{
-  font-size: 24px;
-  font-weight: 700;
-}
-button{
-  border: none;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Montserrat', sans-serif;
 }
 
-body{
-  background-color: #111111;
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+    background: #111111;
+    color: #ffffff;
 }
 
-.project-name{
-  font-size: 20px;
-  font-weight: 800;
-  text-transform: uppercase;
+body {
+    overflow-x: auto;
 }
 
-.menu-left{
-  display: flex;
-  flex-direction: column;
-  background-color: #353535;
-  width: 320px;
-  height: 100vh;
-  gap: 20px;
-  padding: 32px;
-}
-.account-title{
-  font-size: 12px;
-  text-transform: uppercase;
-  font-weight: bold;
-}
-.accaunt{
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.logo{
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-.info-group{
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  font-size: 16px;
-  font-weight: bold;
-  margin-top: 0px;
-}
-hr{
-  border: 1px solid #51435e;
-  margin-top: 16px;
-}
-.menu-before{
-  margin-top: 16px;
-}
-.menu-href{
-  text-decoration: none;
-  font-size: 16px;
-  font-weight: bold;
-}
-.menu-wrapper{
-  display: flex;
-  height: 100%;
-  flex-direction: column;
-  justify-content: space-between;
-}
-.menu-bottom{
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-.card-block{
-  display: flex;
-  gap: 32px;
-}
-.menu-container{
-  display: flex;
-}
-.menu-right{
-  display: flex;
-  margin-left: 32px;
-  margin-top: 32px;
-  flex-direction: column;
-}
-.friends-online{
-  background-color: #353535;
-  padding: 32px 48px;
-  margin-top: 32px;
-  font-size: 16px;
-  cursor: pointer;
-  text-align: start;
-  border-radius: 20px 20px 0 0;
-}
-.modal-btn{
-  background-color: #353535;
-  padding: 0;
-  width: 0;
-  cursor: pointer;
-  border: none;
-}
-.friends-modal{
-  background-color: #242323;
-  border-radius: 0 0 20px 20px;
-  padding: 32px 48px;
-}
-.black{
-  background-color: #403C53;
-  width: 64px;
-  height: 64px;
-}
-.white{
-  background-color: #ffffff;
-  width: 64px;
-  height: 64px;
-}
-.game-right{
-  height: 100%;
-}
-.game-board{
-  display: flex;
-  flex-direction: column;
-  width: 512px;
-  height: 512px;
-  border-radius: 20px;
-}
-.line{
-  display: flex;
-  flex-direction: row;
+button,
+select {
+    font-family: inherit;
 }
 
-#a1{
-  border-radius: 0px 0px 0px 20px;
-}
-#a8{
-  border-radius: 20px 0px 0px 0px;
-}
-#h1{
-  border-radius: 0px 0px 20px 0px;
-}
-#h8{
-  border-radius: 0px 20px 0px 0px;
-}
-.moves_panel{
-  background-color: #353535;
-  width: 300px;
-  height: 512px;
-  border-radius: 20px;
-  margin-top: 16px;
-  border: 1px solid #ffffff;
-}
-.left_panel{
-  background-color: #353535;
-  padding: 32px;
-  border-radius: 20px;
-}
-.game-right{
-  margin-left: 32px;
-  margin-top: 32px;
-  display: flex;
-  gap: 32px;
-}
-.move_input{
-  background-color: #fff;
-  width: 300px;
-  height: 158px;
-  border-radius: 10px;
-  margin-top: 16px;
-  border: none;
-  padding: 16px;
-}
-.game-container{
-  padding: 32px;
-  border-radius: 20px;
-  height: 100%;
-  background-color: #353535;
-}
-.game-info{
-  font-size: 16px;
-  font-weight: 600;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  background-color: #403C53;
-  padding: 32px;
-  margin-top: 32px;
-  border-radius: 20px;
-}
-.title-info{
-  font-size: 20px;
-}
-.list-item{
-  display:flex;
-  align-items: center;
-  gap: 16px;
-  justify-content: space-between;
-}
-.button-status{
-  background-color: #353535;
-  padding: 10px 20px;
-  border-radius: 10px;
-  cursor: pointer;
-  border: none;
-}
-.moves_panel_chess{
-  background-color: #353535;
-  width: 300px;
-  height: 512px;
-  border-radius: 20px;
-  margin-top: 16px;
-}
-.level{
-  font-size: 14px;
-  font-weight: 500;
-}
-select{
-  background-color: #353535;
-  margin-top: 16px;
-  border: none;
-  border-radius: 10px;
-  padding: 10px 15px;
-}
-.reiting{
-  font-size: 24px;
-  font-weight: 500;
-}
-.btn{
-  background-color: #353535;
-  padding: 10px 20px;
-  border-radius: 10px;
-  cursor: pointer;
+button {
+    border: none;
+    color: #ffffff;
 }
 
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  animation: fadeIn 0.2s ease-in-out;
+button:disabled,
+select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
-/* Контейнер модального окна */
-.modal-content {
-  background-color: #353535;
-  padding: 32px;
-  border-radius: 20px;
-  width: 90%;
-  max-width: 500px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  border: 1px solid #51435e;
+/* =========================
+   ОСНОВНОЙ КОНТЕЙНЕР
+========================= */
+
+.menu-container {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
 }
 
-/* Шапка модального окна */
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #51435e;
-  padding-bottom: 12px;
+/* =========================
+   ЛЕВОЕ МЕНЮ
+========================= */
+
+.menu-left {
+    display: flex;
+    flex-direction: column;
+
+    width: 280px;
+    min-width: 280px;
+    min-height: 100vh;
+
+    padding: 32px;
+
+    background-color: #353535;
 }
 
-.modal-title {
-  font-size: 20px;
-  font-weight: bold;
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
 }
 
-/* Кнопка крестика */
-.modal-close-btn {
-  background: transparent;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: #a0a0a0;
-  line-height: 1;
+.logo-piece {
+    font-size: 28px;
 }
 
-.modal-close-btn:hover {
-  color: #ffffff;
+.project-name {
+    font-size: 20px;
+    font-weight: 800;
+    text-transform: uppercase;
 }
 
-/* Тело окна */
-.modal-body {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  font-size: 14px;
-  line-height: 1.5;
+.menu-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    flex: 1;
+
+    margin-top: 35px;
 }
 
-/* Стили элементов внутри модалок (настройки) */
-.setting-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.info-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
-.setting-item label {
-  font-size: 14px;
-  font-weight: 600;
+.menu-href {
+    width: 100%;
+
+    padding: 12px 14px;
+
+    background-color: transparent;
+
+    border-radius: 10px;
+
+    font-size: 16px;
+    font-weight: 600;
+
+    text-align: left;
+
+    color: #a0a0a0;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.15s ease,
+        color 0.15s ease;
 }
 
-/* Анимация появления */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+.menu-href:hover {
+    background-color: #403c53;
+    color: #ffffff;
 }
-.menu-href{
-  text-decoration: none;
-  font-size: 16px;
-  font-weight: bold;
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-  color: #ffffff;
+
+.menu-href.active {
+    background-color: #403c53;
+    color: #ffffff;
 }
-.move_input{
-  color: #000000;
+
+hr {
+    width: 100%;
+
+    margin: 16px 0;
+
+    border: 0;
+    border-top: 1px solid #51435e;
 }
-.menu-before{
-  margin-top: 16px;
-  background-color: transparent;
-  border: none;
+
+.menu-bottom {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
 }
-.game-board,
-.game-board *,
-.game-board [data-piece] {
-  touch-action: none !important;
-  -webkit-touch-callout: none !important;
-  -webkit-user-select: none !important;
-  user-select: none !important;
+
+.accaunt {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
+
+.account-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #a0a0a0;
+}
+
+.account-card {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+
+    padding: 14px;
+
+    background-color: #403c53;
+
+    border-radius: 12px;
+}
+
+.account-name {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.level {
+    font-size: 13px;
+    font-weight: 500;
+    color: #a0a0a0;
+}
+
+/* =========================
+   ПРАВАЯ ЧАСТЬ
+========================= */
+
+.menu-right {
+    flex: 1;
+
+    padding: 32px;
+
+    overflow-x: auto;
+}
+
+.game-container {
+    width: max-content;
+    min-width: 100%;
+
+    padding: 32px;
+
+    background-color: #353535;
+
+    border-radius: 20px;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+/* =========================
+   ИГРОВАЯ ОБЛАСТЬ
+========================= */
+
+.game-right {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 24px;
+
+    margin-top: 32px;
+}
+
+/* =========================
+   ПАНЕЛЬ УПРАВЛЕНИЯ
+========================= */
+
+.left_panel {
+    width: 190px;
+    min-width: 190px;
+
+    padding: 24px;
+
+    background-color: #403c53;
+
+    border-radius: 20px;
+}
+
+.title-info {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.mode-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    margin-top: 14px;
+}
+
+.btn {
+    width: 100%;
+
+    padding: 11px 14px;
+
+    background-color: #353535;
+
+    border-radius: 10px;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.15s ease,
+        transform 0.1s ease;
+}
+
+.btn:hover {
+    background-color: #514b65;
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+.btn-active {
+    background-color: #5c5470;
+}
+
+.difficulty-title {
+    margin-top: 22px;
+
+    font-size: 13px;
+    font-weight: 600;
+    color: #a0a0a0;
+}
+
+select {
+    width: 100%;
+
+    margin-top: 10px;
+
+    padding: 10px 12px;
+
+    background-color: #353535;
+
+    border: 1px solid #51435e;
+
+    border-radius: 10px;
+
+    color: #ffffff;
+
+    outline: none;
+
+    cursor: pointer;
+}
+
+select:focus {
+    border-color: #766b8d;
+}
+
+.reset-btn {
+    margin-top: 18px;
+}
+
+/* =========================
+   ДОСКА
+========================= */
+
+.board-wrapper {
+    width: 512px;
+    height: 512px;
+
+    flex-shrink: 0;
+
+    border-radius: 20px;
+
+    overflow: hidden;
+
+    touch-action: none;
+
+    user-select: none;
+}
+
+.board-wrapper * {
+    user-select: none !important;
+
+    -webkit-user-select: none !important;
+
+    -webkit-touch-callout: none !important;
+
+    -webkit-user-drag: none !important;
+
+    touch-action: none !important;
+}
+
+/* =========================
+   ПРАВАЯ ИНФОРМАЦИЯ
+========================= */
+
+.right-info {
+    width: 300px;
+    min-width: 300px;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 16px;
+}
+
+/* =========================
+   ИНФОРМАЦИЯ О ПАРТИИ
+========================= */
+
+.game-info {
+    display: flex;
+    flex-direction: column;
+
+    gap: 18px;
+
+    padding: 22px;
+
+    background-color: #403c53;
+
+    border-radius: 20px;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.list-item {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+}
+
+.button-status {
+    max-width: 170px;
+
+    padding: 8px 10px;
+
+    background-color: #353535;
+
+    border-radius: 8px;
+
+    font-size: 12px;
+    text-align: center;
+
+    color: #ffffff;
+}
+
+.reiting {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+/* =========================
+   ИСТОРИЯ ХОДОВ
+========================= */
+
+.moves_panel_chess {
+    width: 300px;
+    height: 350px;
+
+    padding: 20px;
+
+    background-color: #353535;
+
+    border-radius: 20px;
+
+    overflow-y: auto;
+}
+
+.moves-title {
+    margin-bottom: 16px;
+
+    font-size: 13px;
+
+    text-transform: uppercase;
+
+    font-weight: 700;
+
+    color: #a0a0a0;
+}
+
+.moves-list {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 8px;
+}
+
+.move {
+    min-height: 28px;
+
+    display: flex;
+
+    align-items: center;
+
+    padding: 5px 7px;
+
+    border-radius: 6px;
+
+    font-size: 13px;
+}
+
+.white-move {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.black-move {
+    color: #a0a0a0;
+}
+
+.move:hover {
+    background-color: #403c53;
+}
+
+.empty-history {
+    padding-top: 10px;
+
+    font-size: 13px;
+
+    color: #777777;
+}
+
+/* =========================
+   СКРОЛЛБАР
+========================= */
+
+.moves_panel_chess::-webkit-scrollbar {
+    width: 6px;
+}
+
+.moves_panel_chess::-webkit-scrollbar-track {
+    background: #242323;
+    border-radius: 10px;
+}
+
+.moves_panel_chess::-webkit-scrollbar-thumb {
+    background: #5c5470;
+    border-radius: 10px;
+}
+
+/* =========================
+   АДАПТИВНОСТЬ
+========================= */
+
+@media (max-width: 1200px) {
+    .menu-left {
+        width: 220px;
+        min-width: 220px;
+
+        padding: 24px;
+    }
+
+    .menu-right {
+        padding: 20px;
+    }
+
+    .game-container {
+        padding: 24px;
+    }
+}
+
+@media (max-width: 900px) {
+    .menu-container {
+        flex-direction: column;
+    }
+
+    .menu-left {
+        width: 100%;
+        min-width: 0;
+        min-height: auto;
+
+        padding: 16px;
+
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .menu-wrapper {
+        margin-top: 0;
+
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .info-group {
+        flex-direction: row;
+    }
+
+    .info-group hr,
+    .menu-bottom {
+        display: none;
+    }
+
+    .menu-href {
+        width: auto;
+    }
+
+    .menu-right {
+        padding: 16px;
+    }
+
+    .game-container {
+        width: max-content;
+    }
+}
+
+@media (max-width: 650px) {
+    .menu-left {
+        display: none;
+    }
+
+    .menu-right {
+        padding: 10px;
+    }
+
+    .game-container {
+        padding: 16px;
+    }
+
+    .game-right {
+        flex-direction: column;
+    }
+
+    .left_panel {
+        width: 100%;
+    }
+
+    .mode-buttons {
+        flex-direction: row;
+    }
+
+    .board-wrapper {
+        width: min(90vw, 512px);
+        height: min(90vw, 512px);
+    }
+
+    .right-info {
+        width: min(90vw, 512px);
+    }
+
+    .moves_panel_chess {
+        width: 100%;
+    }
+}
+

@@ -1,624 +1,768 @@
+
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { Chess, Square } from 'chess.js';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
+import { Chess, Square } from 'chess.js';
 
-// Загрузка доски без SSR и без ошибок типов TypeScript
 const Chessboard = dynamic(
-    () => import('react-chessboard').then((mod: any) => mod.Chessboard || mod.default),
+    () => import('react-chessboard').then((mod) => mod.Chessboard),
     { ssr: false }
-) as any;
+);
+
+type GameMode = 'ai' | 'pvp';
 
 export default function GamePage() {
     const [activeTab, setActiveTab] = useState('game');
 
-    // Экземпляр шахматной логики
-    const gameRef = useRef(new Chess());
-    const [gameFen, setGameFen] = useState<string>(gameRef.current.fen());
-    
-    // Выделение клеток
-    const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
-    const [optionSquares, setOptionSquares] = useState<Record<string, any>>({});
+    // =========================
+    // ШАХМАТНАЯ ЛОГИКА
+    // =========================
 
-    // Состояния Stockfish и статуса
-    const engineRef = useRef<Worker | null>(null);
-    const [evaluation, setEvaluation] = useState<string>('0.00');
-    const [moveHistory, setMoveHistory] = useState<string[]>([]);
-    const [gameStatus, setGameStatus] = useState<string>('Ход белых');
-    const [difficulty, setDifficulty] = useState<string>('15');
+    const gameRef = useRef<Chess>(new Chess());
 
-    // Безопасное подключение Stockfish
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            try {
-                const worker = new Worker('/stockfish.js');
-                engineRef.current = worker;
+    const [gameFen, setGameFen] = useState<string>(
+        gameRef.current.fen()
+    );
 
-                worker.onmessage = (event: MessageEvent) => {
-                    const line = event.data;
-                    if (typeof line !== 'string') return;
+    const [selectedSquare, setSelectedSquare] =
+        useState<Square | null>(null);
 
-                    if (line.includes('info depth') && line.includes('score cp')) {
-                        const match = line.match(/score cp (-?\d+)/);
-                        if (match) {
-                            const score = (parseInt(match[1], 10) / 100).toFixed(2);
-                            setEvaluation(score);
-                        }
-                    } else if (line.includes('score mate')) {
-                        const match = line.match(/score mate (-?\d+)/);
-                        if (match) {
-                            setEvaluation(`Мат в ${Math.abs(parseInt(match[1], 10))}`);
-                        }
-                    }
-                };
+    const [optionSquares, setOptionSquares] =
+        useState<Record<string, React.CSSProperties>>({});
 
-                worker.postMessage('uci');
-                worker.postMessage('isready');
-                worker.postMessage('ucinewgame');
-                
-                analyzePosition(gameRef.current.fen(), difficulty);
-            } catch (err) {
-                console.warn('Stockfish Worker не запущен:', err);
-            }
+    // =========================
+    // СОСТОЯНИЕ ИГРЫ
+    // =========================
+
+    const [gameMode, setGameMode] = useState<GameMode>('ai');
+
+    const [isThinking, setIsThinking] =
+        useState(false);
+
+    const [difficulty, setDifficulty] =
+        useState('10');
+
+    const [evaluation, setEvaluation] =
+        useState('0.00');
+
+    const [moveHistory, setMoveHistory] =
+        useState<string[]>([]);
+
+    const [gameStatus, setGameStatus] =
+        useState('Ход белых');
+
+    // =========================
+    // ОБНОВЛЕНИЕ СОСТОЯНИЯ
+    // =========================
+
+    const refreshGame = useCallback(() => {
+        const game = gameRef.current;
+
+        setGameFen(game.fen());
+        setMoveHistory(game.history());
+
+        if (game.isCheckmate()) {
+            setGameStatus(
+                `Мат! Победили ${
+                    game.turn() === 'w' ? 'чёрные' : 'белые'
+                }`
+            );
+            return;
         }
 
-        return () => {
-            if (engineRef.current) {
-                engineRef.current.terminate();
-            }
-        };
+        if (game.isStalemate()) {
+            setGameStatus('Пат! Ничья');
+            return;
+        }
+
+        if (game.isThreefoldRepetition()) {
+            setGameStatus('Ничья! Троекратное повторение');
+            return;
+        }
+
+        if (game.isInsufficientMaterial()) {
+            setGameStatus('Ничья! Недостаточно материала');
+            return;
+        }
+
+        if (game.isDraw()) {
+            setGameStatus('Ничья!');
+            return;
+        }
+
+        if (game.inCheck()) {
+            setGameStatus(
+                `Шах! Ход ${
+                    game.turn() === 'w' ? 'белых' : 'чёрных'
+                }`
+            );
+            return;
+        }
+
+        setGameStatus(
+            `Ход ${game.turn() === 'w' ? 'белых' : 'чёрных'}`
+        );
     }, []);
 
-    // Анализ позиции
-    const analyzePosition = (fen: string, depth: string) => {
-        if (!engineRef.current) return;
-        try {
-            engineRef.current.postMessage(`position fen ${fen}`);
-            engineRef.current.postMessage(`go depth ${depth}`);
-        } catch (e) {
-            console.error('Ошибка Stockfish:', e);
-        }
-    };
+    // =========================
+    // ОЧИСТКА ПОДСВЕТКИ
+    // =========================
 
-    // Обновление статуса
-    const updateStatus = () => {
-        const game = gameRef.current;
-        if (game.isCheckmate()) {
-            setGameStatus(`Мат! Победили ${game.turn() === 'w' ? 'Чёрные' : 'Белые'}`);
-        } else if (game.isDraw()) {
-            setGameStatus('Ничья!');
-        } else if (game.inCheck()) {
-            setGameStatus(`Шах! Ход ${game.turn() === 'w' ? 'Белых' : 'Чёрных'}`);
-        } else {
-            setGameStatus(`Ход ${game.turn() === 'w' ? 'Белых' : 'Чёрных'}`);
-        }
-    };
+    const clearSelection = useCallback(() => {
+        setSelectedSquare(null);
+        setOptionSquares({});
+    }, []);
 
-    // Главная функция совершения хода
-    const makeMove = useCallback((from: string, to: string) => {
-        try {
+    // =========================
+    // СДЕЛАТЬ ХОД
+    // =========================
+
+    const makeMove = useCallback(
+        (from: Square, to: Square): boolean => {
             const game = gameRef.current;
-            const move = game.move({
-                from,
-                to,
-                promotion: 'q',
+
+            if (game.isGameOver()) {
+                return false;
+            }
+
+            try {
+                const move = game.move({
+                    from,
+                    to,
+                    promotion: 'q',
+                });
+
+                if (!move) {
+                    return false;
+                }
+
+                setEvaluation('0.00');
+
+                clearSelection();
+                refreshGame();
+
+                return true;
+            } catch {
+                return false;
+            }
+        },
+        [clearSelection, refreshGame]
+    );
+
+    // =========================
+    // ПОКАЗАТЬ ВОЗМОЖНЫЕ ХОДЫ
+    // =========================
+
+    const showLegalMoves = useCallback(
+        (square: Square) => {
+            const game = gameRef.current;
+
+            const piece = game.get(square);
+
+            if (!piece) {
+                clearSelection();
+                return;
+            }
+
+            if (piece.color !== game.turn()) {
+                clearSelection();
+                return;
+            }
+
+            const moves = game.moves({
+                square,
+                verbose: true,
             });
 
-            if (move) {
-                const newFen = game.fen();
-                setGameFen(newFen);
-                setMoveHistory(game.history());
-                updateStatus();
-                analyzePosition(newFen, difficulty);
+            const squares: Record<
+                string,
+                React.CSSProperties
+            > = {};
 
-                setSelectedSquare(null);
-                setOptionSquares({});
-                return true;
-            }
-        } catch {
-            return false;
-        }
-        return false;
-    }, [difficulty]);
-
-    // Обработка перетаскивания (Drag-and-Drop)
-    const onDrop = (sourceSquare: string, targetSquare: string) => {
-        return makeMove(sourceSquare, targetSquare);
-    };
-
-    // Обработка кликов (Click-to-Move)
-    const onSquareClick = (square: Square) => {
-        if (selectedSquare) {
-            const moveSuccessful = makeMove(selectedSquare, square);
-            if (moveSuccessful) return;
-        }
-
-        const piece = gameRef.current.get(square);
-        if (piece && piece.color === gameRef.current.turn()) {
-            setSelectedSquare(square);
-
-            const moves = gameRef.current.moves({ square, verbose: true });
-            const newSquares: Record<string, any> = {
-                [square]: { backgroundColor: 'rgba(255, 255, 0, 0.4)' }
+            squares[square] = {
+                backgroundColor: 'rgba(255, 255, 0, 0.45)',
             };
 
-            moves.forEach((m) => {
-                newSquares[m.to] = {
-                    background: 'radial-gradient(circle, rgba(0,255,128,0.6) 25%, transparent 25%)',
-                    borderRadius: '50%'
+            moves.forEach((move) => {
+                squares[move.to] = {
+                    background:
+                        'radial-gradient(circle, rgba(0, 255, 128, 0.7) 0%, rgba(0, 255, 128, 0.7) 15%, transparent 16%)',
                 };
             });
 
-            setOptionSquares(newSquares);
-        } else {
-            setSelectedSquare(null);
-            setOptionSquares({});
-        }
-    };
+            setSelectedSquare(square);
+            setOptionSquares(squares);
+        },
+        [clearSelection]
+    );
 
-    // Перезапуск игры
-    const resetGame = () => {
+    // =========================
+    // ХОД ПО КЛИКУ
+    // =========================
+
+    const onSquareClick = useCallback(
+        ({ square }: { piece: unknown; square: string }) => {
+            if (isThinking) {
+                return;
+            }
+
+            const clickedSquare = square as Square;
+            const game = gameRef.current;
+
+            // В режиме ИИ человек играет только белыми
+            if (
+                gameMode === 'ai' &&
+                game.turn() !== 'w'
+            ) {
+                return;
+            }
+
+            // Если клетка уже выбрана,
+            // пытаемся сделать ход
+            if (selectedSquare) {
+                const moved = makeMove(
+                    selectedSquare,
+                    clickedSquare
+                );
+
+                if (moved) {
+                    return;
+                }
+            }
+
+            // Если нажали на свою фигуру —
+            // показываем возможные ходы
+            const piece = game.get(clickedSquare);
+
+            if (
+                piece &&
+                piece.color === game.turn()
+            ) {
+                showLegalMoves(clickedSquare);
+            } else {
+                clearSelection();
+            }
+        },
+        [
+            clearSelection,
+            gameMode,
+            isThinking,
+            makeMove,
+            selectedSquare,
+            showLegalMoves,
+        ]
+    );
+
+    // =========================
+    // DRAG & DROP
+    // =========================
+
+    const onDrop = useCallback(
+        ({
+            sourceSquare,
+            targetSquare,
+        }: {
+            piece: unknown;
+            sourceSquare: string;
+                targetSquare: string | null;
+        }) => {
+            if (isThinking || !targetSquare) {
+                return false;
+            }
+
+            const game = gameRef.current;
+
+            if (game.isGameOver()) {
+                return false;
+            }
+
+            // В режиме ИИ можно двигать только белыми
+            if (
+                gameMode === 'ai' &&
+                game.turn() !== 'w'
+            ) {
+                return false;
+            }
+
+            const success = makeMove(
+                sourceSquare as Square,
+                targetSquare as Square
+            );
+
+            return success;
+        },
+        [gameMode, isThinking, makeMove]
+    );
+
+    // =========================
+    // ПРОСТОЙ ИИ
+    // =========================
+
+    const makeAIMove = useCallback(() => {
+        const game = gameRef.current;
+
+        if (game.isGameOver()) {
+            setIsThinking(false);
+            return;
+        }
+
+        if (gameMode !== 'ai') {
+            setIsThinking(false);
+            return;
+        }
+
+        if (game.turn() !== 'b') {
+            setIsThinking(false);
+            return;
+        }
+
+        setIsThinking(true);
+
+        // Небольшая задержка,
+        // чтобы ход ИИ выглядел естественно
+        setTimeout(() => {
+            const currentGame = gameRef.current;
+
+            if (
+                currentGame.isGameOver() ||
+                currentGame.turn() !== 'b'
+            ) {
+                setIsThinking(false);
+                return;
+            }
+
+            const possibleMoves =
+                currentGame.moves({
+                    verbose: true,
+                });
+
+            if (possibleMoves.length === 0) {
+                setIsThinking(false);
+                return;
+            }
+
+            /*
+             * Пока Stockfish не подключен,
+             * выбираем случайный легальный ход.
+             *
+             * Позже сюда можно подключить настоящий ИИ.
+             */
+
+            const randomIndex = Math.floor(
+                Math.random() * possibleMoves.length
+            );
+
+            const selectedMove =
+                possibleMoves[randomIndex];
+
+            try {
+                currentGame.move({
+                    from: selectedMove.from,
+                    to: selectedMove.to,
+                    promotion: 'q',
+                });
+
+                setGameFen(currentGame.fen());
+                setMoveHistory(
+                    currentGame.history()
+                );
+                setEvaluation('0.00');
+
+                refreshGame();
+                clearSelection();
+            } catch {
+                // Ничего не делаем,
+                // если вдруг ход оказался некорректным
+            }
+
+            setIsThinking(false);
+        }, 500);
+    }, [
+        clearSelection,
+        gameMode,
+        refreshGame,
+    ]);
+
+    // =========================
+    // АВТОМАТИЧЕСКИЙ ХОД ИИ
+    // =========================
+
+    useEffect(() => {
+        if (gameMode !== 'ai') {
+            return;
+        }
+
+        const game = gameRef.current;
+
+        if (
+            game.turn() === 'b' &&
+            !game.isGameOver() &&
+            !isThinking
+        ) {
+            const timer = setTimeout(() => {
+                makeAIMove();
+            }, 300);
+
+            return () => {
+                clearTimeout(timer);
+            };
+        }
+    }, [
+        gameFen,
+        gameMode,
+        isThinking,
+        makeAIMove,
+    ]);
+
+    // =========================
+    // СБРОС ИГРЫ
+    // =========================
+
+    const resetGame = useCallback(() => {
         gameRef.current.reset();
-        const newFen = gameRef.current.fen();
-        setGameFen(newFen);
-        setMoveHistory([]);
+
+        setGameFen(
+            gameRef.current.fen()
+        );
+
         setSelectedSquare(null);
         setOptionSquares({});
+        setMoveHistory([]);
         setEvaluation('0.00');
+        setIsThinking(false);
         setGameStatus('Ход белых');
-        analyzePosition(newFen, difficulty);
-    };
+    }, []);
 
-    const handleDifficultyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const newDepth = e.target.value;
-        setDifficulty(newDepth);
-        analyzePosition(gameFen, newDepth);
+    // =========================
+    // СМЕНА РЕЖИМА
+    // =========================
+
+    const changeGameMode = (
+        mode: GameMode
+    ) => {
+        setGameMode(mode);
+        resetGame();
     };
 
     return (
         <div className="menu-container">
-            {/* Меню слева */}
+
+            {/* =========================
+                ЛЕВОЕ МЕНЮ
+            ========================= */}
+
             <aside className="menu-left">
+
                 <div className="logo">
-                    <span style={{ fontSize: '24px' }}>♟️</span>
-                    <span className="project-name">Chess App</span>
+                    <span className="logo-piece">
+                        ♟
+                    </span>
+
+                    <span className="project-name">
+                        Chess App
+                    </span>
                 </div>
 
                 <div className="menu-wrapper">
+
                     <div className="info-group">
-                        <button 
-                            className="menu-href" 
-                            style={{ textAlign: 'left', color: activeTab === 'game' ? '#ffffff' : '#a0a0a0' }}
-                            onClick={() => setActiveTab('game')}
+
+                        <button
+                            className={`menu-href ${
+                                activeTab === 'game'
+                                    ? 'active'
+                                    : ''
+                            }`}
+                            onClick={() =>
+                                setActiveTab('game')
+                            }
                         >
                             🎮 Игра
                         </button>
-                        <button 
-                            className="menu-href" 
-                            style={{ textAlign: 'left', color: activeTab === 'puzzles' ? '#ffffff' : '#a0a0a0' }}
-                            onClick={() => setActiveTab('puzzles')}
+
+                        <button
+                            className={`menu-href ${
+                                activeTab === 'puzzles'
+                                    ? 'active'
+                                    : ''
+                            }`}
+                            onClick={() =>
+                                setActiveTab('puzzles')
+                            }
                         >
                             🧩 Задачи
                         </button>
-                        <button 
-                            className="menu-href" 
-                            style={{ textAlign: 'left', color: activeTab === 'rating' ? '#ffffff' : '#a0a0a0' }}
-                            onClick={() => setActiveTab('rating')}
+
+                        <button
+                            className={`menu-href ${
+                                activeTab === 'rating'
+                                    ? 'active'
+                                    : ''
+                            }`}
+                            onClick={() =>
+                                setActiveTab('rating')
+                            }
                         >
                             🏆 Рейтинг
                         </button>
-                        
+
                         <hr />
 
-                        <div className="menu-before">
-                            <button className="menu-href">⚙️ Настройки</button>
-                        </div>
+                        <button className="menu-href">
+                            ⚙️ Настройки
+                        </button>
+
                     </div>
 
                     <div className="menu-bottom">
+
                         <div className="accaunt">
-                            <span className="account-title">Аккаунт</span>
-                            <div className="list-item">
-                                <span style={{ fontSize: '14px', fontWeight: 'bold' }}>Grandmaster_99</span>
-                                <span className="level">1500 ELO</span>
+
+                            <span className="account-title">
+                                Аккаунт
+                            </span>
+
+                            <div className="account-card">
+
+                                <span className="account-name">
+                                    Grandmaster_99
+                                </span>
+
+                                <span className="level">
+                                    1500 ELO
+                                </span>
+
                             </div>
+
                         </div>
+
                     </div>
+
                 </div>
+
             </aside>
 
-            {/* Игровое поле */}
+            {/* =========================
+                ОСНОВНАЯ ЧАСТЬ
+            ========================= */}
+
             <main className="menu-right">
+
                 <div className="game-container">
-                    <div className="title">Шахматная партия</div>
+
+                    <div className="title">
+                        Шахматная партия
+                    </div>
 
                     <div className="game-right">
-                        {/* Левая панель */}
+
+                        {/* =========================
+                            ПАНЕЛЬ УПРАВЛЕНИЯ
+                        ========================= */}
+
                         <div className="left_panel">
-                            <div className="title-info">Управление</div>
-                            
-                            <div className="level" style={{ marginTop: '16px' }}>
-                                Сложность анализа:
+
+                            <div className="title-info">
+                                Режим игры
                             </div>
-                            <select value={difficulty} onChange={handleDifficultyChange}>
-                                <option value="5">Легкий (глубина 5)</option>
-                                <option value="15">Средний (глубина 15)</option>
-                                <option value="20">Глубокий (глубина 20)</option>
+
+                            <div className="mode-buttons">
+
+                                <button
+                                    className={`btn ${
+                                        gameMode === 'ai'
+                                            ? 'btn-active'
+                                            : ''
+                                    }`}
+                                    onClick={() =>
+                                        changeGameMode('ai')
+                                    }
+                                >
+                                    🤖 Против ИИ
+                                </button>
+
+                                <button
+                                    className={`btn ${
+                                        gameMode === 'pvp'
+                                            ? 'btn-active'
+                                            : ''
+                                    }`}
+                                    onClick={() =>
+                                        changeGameMode('pvp')
+                                    }
+                                >
+                                    👥 Вдвоём
+                                </button>
+
+                            </div>
+
+                            <div className="difficulty-title">
+                                Сложность ИИ
+                            </div>
+
+                            <select
+                                value={difficulty}
+                                onChange={(e) =>
+                                    setDifficulty(
+                                        e.target.value
+                                    )
+                                }
+                                disabled={
+                                    gameMode !== 'ai'
+                                }
+                            >
+                                <option value="3">
+                                    Легкий
+                                </option>
+
+                                <option value="10">
+                                    Средний
+                                </option>
+
+                                <option value="18">
+                                    Сложный
+                                </option>
                             </select>
 
-                            <div style={{ marginTop: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                <button className="btn" onClick={resetGame}>
-                                    Новая игра
-                                </button>
-                            </div>
+                            <button
+                                className="btn reset-btn"
+                                onClick={resetGame}
+                            >
+                                🔄 Сбросить доску
+                            </button>
+
                         </div>
 
-                        {/* Шахматная доска */}
-                        <div className="game-board">
-                            <Chessboard 
-                                position={gameFen} 
-                                onPieceDrop={onDrop}
-                                onSquareClick={onSquareClick}
-                                customSquareStyles={optionSquares}
-                                arePiecesDraggable={true}
-                                animationDuration={150}
-                                boardWidth={512}
-                                customBoardStyle={{
-                                    borderRadius: '20px',
-                                    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.5)',
+                        {/* =========================
+                            ДОСКА
+                        ========================= */}
+
+                        <div className="board-wrapper">
+
+                            <Chessboard
+                                options={{
+                                    position: gameFen,
+                                    onPieceDrop: onDrop,
+                                    onSquareClick,
+                                    squareStyles: optionSquares,
+                                    allowDragging: !isThinking,
+                                    animationDurationInMs: 150,
+                                    boardStyle: {
+                                        borderRadius: '20px',
+                                        boxShadow:
+                                            '0 10px 25px rgba(0,0,0,0.5)',
+                                        overflow: 'hidden',
+                                    },
+                                    darkSquareStyle: {
+                                        backgroundColor: '#403C53',
+                                    },
+                                    lightSquareStyle: {
+                                        backgroundColor: '#ffffff',
+                                    },
                                 }}
-                                customDarkSquareStyle={{ backgroundColor: '#403C53' }}
-                                customLightSquareStyle={{ backgroundColor: '#ffffff' }}
                             />
+
                         </div>
 
-                        {/* Правая панель */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                            <div className="game-info" style={{ marginTop: 0 }}>
+                        {/* =========================
+                            ИНФОРМАЦИЯ
+                        ========================= */}
+
+                        <div className="right-info">
+
+                            <div className="game-info">
+
                                 <div className="list-item">
-                                    <span>Статус:</span>
-                                    <button className="button-status">{gameStatus}</button>
+
+                                    <span>
+                                        Статус:
+                                    </span>
+
+                                    <span className="button-status">
+                                        {isThinking
+                                            ? 'ИИ думает...'
+                                            : gameStatus}
+                                    </span>
+
                                 </div>
+
                                 <div className="list-item">
-                                    <span>Оценка Stockfish:</span>
-                                    <span className="reiting">{evaluation}</span>
+
+                                    <span>
+                                        Оценка:
+                                    </span>
+
+                                    <span className="reiting">
+                                        {evaluation}
+                                    </span>
+
                                 </div>
+
                             </div>
 
-                            <div className="moves_panel_chess" style={{ padding: '20px', overflowY: 'auto' }}>
-                                <div className="account-title" style={{ marginBottom: '12px' }}>История ходов</div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '14px' }}>
-                                    {moveHistory.map((move, index) => (
-                                        index % 2 === 0 ? (
-                                            <div key={index} style={{ color: '#ffffff', fontWeight: 600 }}>
-                                                {Math.floor(index / 2) + 1}. {move}
-                                            </div>
-                                        ) : (
-                                            <div key={index} style={{ color: '#a0a0a0' }}>
-                                                {move}
-                                            </div>
-                                        )
-                                    ))}
+                            {/* =========================
+                                ИСТОРИЯ ХОДОВ
+                            ========================= */}
+
+                            <div className="moves_panel_chess">
+
+                                <div className="moves-title">
+                                    История ходов
                                 </div>
+
+                                {moveHistory.length ===
+                                0 ? (
+                                    <div className="empty-history">
+                                        Ходов пока нет
+                                    </div>
+                                ) : (
+                                    <div className="moves-list">
+
+                                        {moveHistory.map(
+                                            (
+                                                move,
+                                                index
+                                            ) => (
+                                                <div
+                                                    className={
+                                                        index %
+                                                            2 ===
+                                                        0
+                                                            ? 'move white-move'
+                                                            : 'move black-move'
+                                                    }
+                                                    key={`${move}-${index}`}
+                                                >
+                                                    {index %
+                                                        2 ===
+                                                    0
+                                                        ? `${
+                                                              Math.floor(
+                                                                  index /
+                                                                      2
+                                                              ) +
+                                                              1
+                                                          }. ${move}`
+                                                        : move}
+                                                </div>
+                                            )
+                                        )}
+
+                                    </div>
+                                )}
+
                             </div>
+
                         </div>
+
                     </div>
+
                 </div>
+
             </main>
+
         </div>
     );
 }
-// 'use client';
 
-// import { useState, useEffect, useRef } from 'react';
-// import { Chess, Square } from 'chess.js';
-// import dynamic from 'next/dynamic';
-
-// // Загрузка доски без SSR
-// const Chessboard = dynamic(
-//     () => import('react-chessboard').then((mod) => mod.Chessboard),
-//     { ssr: false }
-// ) as any;
-
-// export default function GamePage() {
-//     const [activeTab, setActiveTab] = useState('game');
-
-//     // Инициализация шахматной партии
-//     const gameRef = useRef(new Chess());
-//     const [gameFen, setGameFen] = useState<string>(gameRef.current.fen());
-    
-//     // Выделение клеток
-//     const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
-//     const [optionSquares, setOptionSquares] = useState<Record<string, any>>({});
-
-//     // Состояния Stockfish и статуса
-//     const engineRef = useRef<Worker | null>(null);
-//     const [evaluation, setEvaluation] = useState<string>('0.00');
-//     const [moveHistory, setMoveHistory] = useState<string[]>([]);
-//     const [gameStatus, setGameStatus] = useState<string>('Ход белых');
-//     const [difficulty, setDifficulty] = useState<string>('15');
-
-//     // Безопасное подключение Stockfish
-//     useEffect(() => {
-//         if (typeof window !== 'undefined') {
-//             try {
-//                 const worker = new Worker('/stockfish.js');
-//                 engineRef.current = worker;
-
-//                 worker.onmessage = (event: MessageEvent) => {
-//                     const line = event.data;
-//                     if (typeof line !== 'string') return;
-
-//                     if (line.includes('info depth') && line.includes('score cp')) {
-//                         const match = line.match(/score cp (-?\d+)/);
-//                         if (match) {
-//                             const score = (parseInt(match[1], 10) / 100).toFixed(2);
-//                             setEvaluation(score);
-//                         }
-//                     } else if (line.includes('score mate')) {
-//                         const match = line.match(/score mate (-?\d+)/);
-//                         if (match) {
-//                             setEvaluation(`Мат в ${Math.abs(parseInt(match[1], 10))}`);
-//                         }
-//                     }
-//                 };
-
-//                 worker.postMessage('uci');
-//                 worker.postMessage('isready');
-//                 worker.postMessage('ucinewgame');
-                
-//                 analyzePosition(gameRef.current.fen(), difficulty);
-//             } catch (err) {
-//                 console.warn('Stockfish Worker не запущен или отсутствует /public/stockfish.js:', err);
-//             }
-//         }
-
-//         return () => {
-//             if (engineRef.current) {
-//                 engineRef.current.terminate();
-//             }
-//         };
-//     }, []);
-
-//     // Оценка позиции
-//     const analyzePosition = (fen: string, depth: string) => {
-//         if (!engineRef.current) return;
-//         try {
-//             engineRef.current.postMessage(`position fen ${fen}`);
-//             engineRef.current.postMessage(`go depth ${depth}`);
-//         } catch (e) {
-//             console.error('Ошибка отправки сообщения Stockfish:', e);
-//         }
-//     };
-
-//     // Обновление статуса партии
-//     const updateStatus = () => {
-//         const game = gameRef.current;
-//         if (game.isCheckmate()) {
-//             setGameStatus(`Мат! Победили ${game.turn() === 'w' ? 'Чёрные' : 'Белые'}`);
-//         } else if (game.isDraw()) {
-//             setGameStatus('Ничья!');
-//         } else if (game.inCheck()) {
-//             setGameStatus(`Шах! Ход ${game.turn() === 'w' ? 'Белых' : 'Чёрных'}`);
-//         } else {
-//             setGameStatus(`Ход ${game.turn() === 'w' ? 'Белых' : 'Чёрных'}`);
-//         }
-//     };
-
-//     // Функция проведения хода
-//     const makeMove = (from: string, to: string) => {
-//         try {
-//             const move = gameRef.current.move({
-//                 from,
-//                 to,
-//                 promotion: 'q',
-//             });
-
-//             if (move) {
-//                 const newFen = gameRef.current.fen();
-//                 setGameFen(newFen);
-//                 setMoveHistory(gameRef.current.history());
-//                 updateStatus();
-//                 analyzePosition(newFen, difficulty);
-
-//                 setSelectedSquare(null);
-//                 setOptionSquares({});
-//                 return true;
-//             }
-//         } catch (error) {
-//             console.log('Нелегальный ход:', from, '->', to);
-//             return false;
-//         }
-//         return false;
-//     };
-
-//     // Drag-and-Drop (Перетаскивание)
-//     const onDrop = (sourceSquare: string, targetSquare: string) => {
-//         const moveMade = makeMove(sourceSquare, targetSquare);
-//         return moveMade;
-//     };
-
-//     // Click-to-Move (Клик по фигурам)
-//     const onSquareClick = (square: Square) => {
-//         if (selectedSquare) {
-//             const moveSuccessful = makeMove(selectedSquare, square);
-//             if (moveSuccessful) return;
-//         }
-
-//         const piece = gameRef.current.get(square);
-//         if (piece && piece.color === gameRef.current.turn()) {
-//             setSelectedSquare(square);
-
-//             const moves = gameRef.current.moves({ square, verbose: true });
-//             const newSquares: Record<string, any> = {
-//                 [square]: { backgroundColor: 'rgba(255, 255, 0, 0.4)' }
-//             };
-
-//             moves.forEach((m) => {
-//                 newSquares[m.to] = {
-//                     background: 'radial-gradient(circle, rgba(0,255,128,0.6) 25%, transparent 25%)',
-//                     borderRadius: '50%'
-//                 };
-//             });
-
-//             setOptionSquares(newSquares);
-//         } else {
-//             setSelectedSquare(null);
-//             setOptionSquares({});
-//         }
-//     };
-
-//     // Сброс партии
-//     const resetGame = () => {
-//         gameRef.current.reset();
-//         const newFen = gameRef.current.fen();
-//         setGameFen(newFen);
-//         setMoveHistory([]);
-//         setSelectedSquare(null);
-//         setOptionSquares({});
-//         setEvaluation('0.00');
-//         setGameStatus('Ход белых');
-//         analyzePosition(newFen, difficulty);
-//     };
-
-//     const handleDifficultyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-//         const newDepth = e.target.value;
-//         setDifficulty(newDepth);
-//         analyzePosition(gameFen, newDepth);
-//     };
-
-//     return (
-//         <div className="menu-container">
-//             {/* Меню слева */}
-//             <aside className="menu-left">
-//                 <div className="logo">
-//                     <span style={{ fontSize: '24px' }}>♟️</span>
-//                     <span className="project-name">Chess App</span>
-//                 </div>
-
-//                 <div className="menu-wrapper">
-//                     <div className="info-group">
-//                         <button 
-//                             className="menu-href" 
-//                             style={{ textAlign: 'left', color: activeTab === 'game' ? '#ffffff' : '#a0a0a0' }}
-//                             onClick={() => setActiveTab('game')}
-//                         >
-//                             🎮 Игра
-//                         </button>
-//                         <button 
-//                             className="menu-href" 
-//                             style={{ textAlign: 'left', color: activeTab === 'puzzles' ? '#ffffff' : '#a0a0a0' }}
-//                             onClick={() => setActiveTab('puzzles')}
-//                         >
-//                             🧩 Задачи
-//                         </button>
-//                         <button 
-//                             className="menu-href" 
-//                             style={{ textAlign: 'left', color: activeTab === 'rating' ? '#ffffff' : '#a0a0a0' }}
-//                             onClick={() => setActiveTab('rating')}
-//                         >
-//                             🏆 Рейтинг
-//                         </button>
-                        
-//                         <hr />
-
-//                         <div className="menu-before">
-//                             <button className="menu-href">⚙️ Настройки</button>
-//                         </div>
-//                     </div>
-
-//                     <div className="menu-bottom">
-//                         <div className="accaunt">
-//                             <span className="account-title">Аккаунт</span>
-//                             <div className="list-item">
-//                                 <span style={{ fontSize: '14px', fontWeight: 'bold' }}>Grandmaster_99</span>
-//                                 <span className="level">1500 ELO</span>
-//                             </div>
-//                         </div>
-//                     </div>
-//                 </div>
-//             </aside>
-
-//             {/* Игровое поле справа */}
-//             <main className="menu-right">
-//                 <div className="game-container">
-//                     <div className="title">Шахматная партия</div>
-
-//                     <div className="game-right">
-//                         {/* Левая панель */}
-//                         <div className="left_panel">
-//                             <div className="title-info">Управление</div>
-                            
-//                             <div className="level" style={{ marginTop: '16px' }}>
-//                                 Сложность анализа:
-//                             </div>
-//                             <select value={difficulty} onChange={handleDifficultyChange}>
-//                                 <option value="5">Легкий (глубина 5)</option>
-//                                 <option value="15">Средний (глубина 15)</option>
-//                                 <option value="20">Глубокий (глубина 20)</option>
-//                             </select>
-
-//                             <div style={{ marginTop: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-//                                 <button className="btn" onClick={resetGame}>
-//                                     Новая игра
-//                                 </button>
-//                             </div>
-//                         </div>
-
-//                         {/* Интерактивная доска */}
-//                         <div className="game-board">
-//                             <Chessboard 
-//                                 position={gameFen} 
-//                                 onPieceDrop={onDrop}
-//                                 onSquareClick={onSquareClick}
-//                                 customSquareStyles={optionSquares}
-//                                 arePiecesDraggable={true}
-//                                 animationDuration={200}
-//                                 boardWidth={512}
-//                                 customBoardStyle={{
-//                                     borderRadius: '20px',
-//                                     boxShadow: '0 10px 25px rgba(0, 0, 0, 0.5)',
-//                                     touchAction: 'none', // <-- Отключает вмешательство Chrome в тач-события
-//                                 }}
-//                                 customDarkSquareStyle={{ backgroundColor: '#403C53' }}
-//                                 customLightSquareStyle={{ backgroundColor: '#ffffff' }}
-//                             />
-//                         </div>
-
-//                         {/* Правая панель */}
-//                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-//                             <div className="game-info" style={{ marginTop: 0 }}>
-//                                 <div className="list-item">
-//                                     <span>Статус:</span>
-//                                     <button className="button-status">{gameStatus}</button>
-//                                 </div>
-//                                 <div className="list-item">
-//                                     <span>Оценка Stockfish:</span>
-//                                     <span className="reiting">{evaluation}</span>
-//                                 </div>
-//                             </div>
-
-//                             <div className="moves_panel_chess" style={{ padding: '20px', overflowY: 'auto' }}>
-//                                 <div className="account-title" style={{ marginBottom: '12px' }}>История ходов</div>
-//                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '14px' }}>
-//                                     {moveHistory.map((move, index) => (
-//                                         index % 2 === 0 ? (
-//                                             <div key={index} style={{ color: '#ffffff', fontWeight: 600 }}>
-//                                                 {Math.floor(index / 2) + 1}. {move}
-//                                             </div>
-//                                         ) : (
-//                                             <div key={index} style={{ color: '#a0a0a0' }}>
-//                                                 {move}
-//                                             </div>
-//                                         )
-//                                     ))}
-//                                 </div>
-//                             </div>
-//                         </div>
-//                     </div>
-//                 </div>
-//             </main>
-//         </div>
-//     );
-// }

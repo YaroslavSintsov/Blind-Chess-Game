@@ -60,7 +60,7 @@ export default function Home() {
           </div> 
         </aside>
 
-        <main className="menu-right">
+        <main className="menu-right"> Девятый круг Несущий ужас Канун дня всех святых
           {activeTab === 'menu' && (
             <>
               <div className="card-block">
@@ -70,7 +70,7 @@ export default function Home() {
                 <div onClick={() => setActiveTab('tactics')}>
                   <CardMenuBtnTactics />
                 </div>
-                <div onClick={() => setActiveTab('training')}> -634 -169
+                <div onClick={() => setActiveTab('training')}>
                   <CardMenuBtnTrening />
                 </div>
               </div>
