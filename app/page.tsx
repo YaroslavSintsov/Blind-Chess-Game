@@ -60,14 +60,14 @@ export default function Home() {
           </div> 
         </aside>
 
-        <main className="menu-right"> Девятый круг Несущий ужас Канун дня всех святых
+        <main className="menu-right">
           {activeTab === 'menu' && (
             <>
               <div className="card-block">
                 <div onClick={() => setActiveTab('game')}>
                   <CardMenuBtnPlay />
                 </div>
-                <div onClick={() => setActiveTab('tactics')}>
+                <div onClick={() => setActiveTab('tactics')}>Y4K6JB
                   <CardMenuBtnTactics />
                 </div>
                 <div onClick={() => setActiveTab('training')}>
@@ -87,7 +87,7 @@ export default function Home() {
         onClose={() => setIsSettingsOpen(false)} 
         title="Настройки игры"
       >
-        <div className="setting-item">
+        <div className="setting-item">1
           <label htmlFor="sound">Звуковые эффекты:</label>
           <input type="checkbox" id="sound" defaultChecked />
         </div>

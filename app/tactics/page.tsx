@@ -1,210 +1,407 @@
-'use client'
+'use client';
 
 import { useState } from 'react';
-import Image from "next/image";
-import CardMenuBtnPlay from "@/src/components/CardMenuBtn/CardMenuBtn";
-import CardMenuBtnTactics from "@/src/components/CardMenuBtn/CardMenuBtnTactics";
-import CardMenuBtnTrening from "@/src/components/CardMenuBtn/CardMenuBtnTrening";
-import Friends from "@/src/components/online-friends/friends";
-import MenuBtn from "@/src/components/menu-btn";
-import Game from "../game/page";
-import Trening from '../trening/page';
-import Modal from "@/src/components/modal"; // Импорт компонента модального окна
+import Image from 'next/image';
+import { Chess, type Square } from 'chess.js';
+import MenuBtn from '@/src/components/menu-btn';
+import Modal from '@/src/components/modal';
 
-export default function Tactics(){
-    const [activeTab, setActiveTab] = useState('menu');
-    
-    // Состояния для модальных окон
-    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-    const [isHelpOpen, setIsHelpOpen] = useState(false);
-    return(
-        <>
-            <div className="menu-container">
-                <aside className="menu-left">
-                          <div className="menu-wrapper">
-                            <div className="menu-top">
-                              <div className="menu-after">
-                                <p className="project-name">Blind chess master</p>
-                                <div className="account">
-                                  <p className="account-title">Аккаунт</p>
-                                  <div className="logo">
-                                    <Image src="/user-icon.png" width={100} height={100} alt="User Icon" />
-                                    <div className="info-group">
-                                      <p>User123</p>
-                                      <p>1600 elo</p>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                              <hr />
-                              <div className="menu-before">
-                                <MenuBtn></MenuBtn>
-                              </div>
-                            </div>
-                            <div className="menu-bottom">
-                              {/* Кнопки вызова модальных окон */}
-                              <button 
-                                className="menu-href modal-btn" 
-                                onClick={() => setIsSettingsOpen(true)}
-                              >
-                                Настройки
-                              </button>
-                              <button 
-                                className="menu-href modal-btn" 
-                                onClick={() => setIsHelpOpen(true)}
-                              >
-                                Помощь
-                              </button>
-                            </div>
-                          </div> 
-                </aside>
-                <div className="game-right">
-                    <div className="left_panel">
-                        <p className="title">Задача 1</p>
-                        <p className='made_moves'>Ход ___, ___ в _ хода</p>
-                        <div className="moves_panel_chess">Random position</div>
-                        <textarea className="move_input" placeholder="Введите свой следующий ход например (лf3, e.g)" ></textarea>
+const tasks = [
+  {
+    title: 'Задача 1',
+    difficulty: 'easy',
+    description: 'Найдите мат в один ход.',
+    fen: '7k/8/5KQ1/8/8/8/8/8 w - - 0 1',
+    solution: 'g6g7',
+    rating: 100,
+  },
+  {
+    title: 'Задача 2',
+    difficulty: 'medium',
+    description: 'Найдите мат в один ход.',
+    fen: '7k/6pp/5KQ1/8/8/8/8/8 w - - 0 1',
+    solution: 'g6g7',
+    rating: 150,
+  },
+];
+
+const pieces: Record<string, string> = {
+  wk: '♔', wq: '♕', wr: '♖', wb: '♗', wn: '♘', wp: '♙',
+  bk: '♚', bq: '♛', br: '♜', bb: '♝', bn: '♞', bp: '♟',
+};
+
+export default function Tactics() {
+  const [taskIndex, setTaskIndex] = useState(0);
+  const [game, setGame] = useState(
+    () => new Chess(tasks[0].fen)
+  );
+  const [answer, setAnswer] = useState('');
+  const [message, setMessage] = useState('');
+  const [solved, setSolved] = useState(false);
+  const [score, setScore] = useState(0);
+  const [selectedSquare, setSelectedSquare] =
+    useState<Square | null>(null);
+  const [difficulty, setDifficulty] = useState('all');
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [blindMode, setBlindMode] = useState(false);
+  const [showPieces, setShowPieces] = useState(true);
+
+  const task = tasks[taskIndex];
+
+  function loadTask(index: number) {
+    const nextIndex = (index + tasks.length) % tasks.length;
+    setTaskIndex(nextIndex);
+    setGame(new Chess(tasks[nextIndex].fen));
+    setAnswer('');
+    setMessage('');
+    setSolved(false);
+    setSelectedSquare(null);
+  }
+
+  function submitMove(rawMove: string) {
+    if (solved) return;
+
+    const value = rawMove.trim();
+    if (!value) {
+      setMessage('Введите ход, например g6g7.');
+      return;
+    }
+
+    const nextGame = new Chess(game.fen());
+    let move;
+
+    try {
+      const uci = value.match(
+        /^([a-h][1-8])\s*[-x]?\s*([a-h][1-8])(?:=?([qrbn]))?$/i
+      );
+
+      if (uci) {
+        move = nextGame.move({
+          from: uci[1].toLowerCase() as Square,
+          to: uci[2].toLowerCase() as Square,
+          promotion: (uci[3] || 'q').toLowerCase(),
+        });
+      } else {
+        move = nextGame.move(value);
+      }
+    } catch {
+      move = null;
+    }
+
+    if (!move) {
+      setMessage('Такого легального хода нет. Попробуйте ещё раз.');
+      return;
+    }
+
+    const playedUci = move.from + move.to + (move.promotion || '');
+    const expected = task.solution.toLowerCase();
+
+    if (playedUci !== expected) {
+      setMessage('Ход легальный, но это не решение задачи. Попробуйте другой ход.');
+      return;
+    }
+
+    setGame(nextGame);
+    setSolved(true);
+    setScore((previous) => previous + task.rating);
+    setMessage(
+      nextGame.isCheckmate()
+        ? 'Верно! Шах и мат!'
+        : 'Верно! Задача решена.'
+    );
+    setAnswer('');
+    setSelectedSquare(null);
+  }
+
+  function handleSquareClick(square: Square) {
+    if (solved) return;
+
+    const piece = game.get(square);
+
+    if (!selectedSquare) {
+      if (piece && piece.color === game.turn()) {
+        setSelectedSquare(square);
+      }
+      return;
+    }
+
+    if (selectedSquare === square) {
+      setSelectedSquare(null);
+      return;
+    }
+
+    const moveText = `${selectedSquare}${square}`;
+    setSelectedSquare(null);
+    setMessage('');
+    submitMove(moveText);
+  }
+
+  const history = game.history();
+
+  return (
+    <>
+      <div className="menu-container tactics-page">
+        <aside className="menu-left">
+          <div className="menu-wrapper">
+            <div className="menu-top">
+              <div className="menu-after">
+                <p className="project-name">Blind chess master</p>
+
+                <div className="account">
+                  <p className="account-title">Аккаунт</p>
+                  <div className="logo">
+                    <Image
+                      src="/user-icon.png"
+                      width={100}
+                      height={100}
+                      alt="Аватар пользователя"
+                    />
+                    <div className="info-group">
+                      <p>User123</p>
+                      <p>1600 elo</p>
                     </div>
-                    <div className="game-container">
-                        <div className="game-board">
-                            <div className="line">
-                                <div className="black" id="a8"></div>
-                                <div className="white" id="b8"></div>
-                                <div className="black" id="c8"></div>
-                                <div className="white" id="d8"></div>
-                                <div className="black" id="e8"></div>
-                                <div className="white" id="f8"></div>
-                                <div className="black" id="g8"></div>
-                                <div className="white" id="h8"></div>
-                            </div>
-                            <div className="line">
-                                <div className="white" id="a7"></div>
-                                <div className="black" id="b7"></div>
-                                <div className="white" id="c7"></div>
-                                <div className="black" id="d7"></div>
-                                <div className="white" id="e7"></div>
-                                <div className="black" id="f7"></div>
-                                <div className="white" id="g7"></div>
-                                <div className="black" id="h7"></div>
-                            </div>
-                            <div className="line">
-                                <div className="black" id="a6"></div>
-                                <div className="white" id="b6"></div>
-                                <div className="black" id="c6"></div>
-                                <div className="white" id="d6"></div>
-                                <div className="black" id="e6"></div>
-                                <div className="white" id="f6"></div>
-                                <div className="black" id="g6"></div>
-                                <div className="white" id="h6"></div>
-                            </div>
-                            <div className="line">
-                                <div className="white" id="a5"></div>
-                                <div className="black" id="b5"></div>
-                                <div className="white" id="c5"></div>
-                                <div className="black" id="d5"></div>
-                                <div className="white" id="e5"></div>
-                                <div className="black" id="f5"></div>
-                                <div className="white" id="g5"></div>
-                                <div className="black" id="h5"></div>
-                            </div>
-                            <div className="line">
-                                <div className="black" id="a4"></div>
-                                <div className="white" id="b4"></div>
-                                <div className="black" id="c4"></div>
-                                <div className="white" id="d4"></div>
-                                <div className="black" id="e4"></div>
-                                <div className="white" id="f4"></div>
-                                <div className="black" id="g4"></div>
-                                <div className="white" id="h4"></div>
-                            </div>
-                            <div className="line">
-                                <div className="white" id="a3"></div>
-                                <div className="black" id="b3"></div>
-                                <div className="white" id="c3"></div>
-                                <div className="black" id="d3"></div>
-                                <div className="white" id="e3"></div>
-                                <div className="black" id="f3"></div>
-                                <div className="white" id="g3"></div>
-                                <div className="black" id="h3"></div>
-                            </div>
-                            <div className="line">
-                                <div className="black" id="a2"></div>
-                                <div className="white" id="b2"></div>
-                                <div className="black" id="c2"></div>
-                                <div className="white" id="d2"></div>
-                                <div className="black" id="e2"></div>
-                                <div className="white" id="f2"></div>
-                                <div className="black" id="g2"></div>
-                                <div className="white" id="h2"></div>
-                            </div>
-                            <div className="line">
-                                <div className="white" id="a1"></div>
-                                <div className="black" id="b1"></div>
-                                <div className="white" id="c1"></div>
-                                <div className="black" id="d1"></div>
-                                <div className="white" id="e1"></div>
-                                <div className="black" id="f1"></div>
-                                <div className="white" id="g1"></div>
-                                <div className="black" id="h1"></div>
-                            </div>
-                        </div>
-                        <div className="game-info">
-                            <div className="reiting list-item">
-                                <div className="level_hard">
-                                    <p className="level">Уровень сложности:</p>
-                                    <select name="level_hard" id="">
-                                        <option value="easy">Легкий</option>
-                                        <option value="medium">Средний</option>
-                                        <option value="hard">Сложный</option>
-                                    </select>
-                                </div>
-                                <p className="raiting">Рейтинг: ____</p>
-                            </div>
-                            <div className="list-item">
-                                <button id="skip" className="btn">Пропустить задачу</button>
-                                <button id="skip" className="btn">Пропустить задачу</button>
-                            </div>
-                        </div>
-                    </div>
+                  </div>
                 </div>
+              </div>
+
+              <hr />
+              <div className="menu-before">
+                <MenuBtn />
+              </div>
             </div>
-            <Modal 
-                isOpen={isSettingsOpen} 
-                onClose={() => setIsSettingsOpen(false)} 
-                title="Настройки игры"
-            >
-                <div className="setting-item">
-                <label htmlFor="sound">Звуковые эффекты:</label>
-                <input type="checkbox" id="sound" defaultChecked />
-                </div>
-                <div className="setting-item">
-                <label htmlFor="blind-mode">Режим полной слепоты:</label>
-                <input type="checkbox" id="blind-mode" />
-                </div>
-                <div className="setting-item">
-                <label htmlFor="theme">Тема доски:</label>
-                <select id="theme">
-                    <option value="classic">Классическая</option>
-                    <option value="dark">Темная</option>
-                </select>
-                </div>
-            </Modal>
 
-            {/* Модальное окно Помощи */}
-            <Modal 
-                isOpen={isHelpOpen} 
-                onClose={() => setIsHelpOpen(false)} 
-                title="Помощь и правила"
-            >
-                <p><strong>Blind Chess Master</strong> — это сервис для игры в шахматы "вслепую".</p>
-                <p><strong>Основные возможности:</strong></p>
-                <ul style={{ paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <li>Вводить ходы с помощью текстовой нотации (например, e2e4).</li>
-                <li>Тренировать визуализацию доски в режиме «Тактика».</li>
-                <li>Соревноваться с друзьями в реальном времени.</li>
-                </ul>
-                <p>При возникновении проблем пишите в поддержку: <code>support@blindchess.com</code></p>
-            </Modal>
-        </>
-    )
+            <div className="menu-bottom">
+              <button
+                className="menu-href modal-btn"
+                onClick={() => setIsSettingsOpen(true)}
+              >
+                Настройки
+              </button>
+              <button
+                className="menu-href modal-btn"
+                onClick={() => setIsHelpOpen(true)}
+              >
+                Помощь
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        <main className="tactics-content">
+          <div className="game-right tactics-layout">
+            <section className="moves-panel">
+              <p className="title">{task.title}</p>
+              <p className="task-description">{task.description}</p>
+
+              <div className="moves_panel_chess tactics-history">
+                <p className="moves-title">История ходов</p>
+
+                {history.length === 0 ? (
+                  <p className="empty-history">
+                    Сделайте первый ход на доске или введите его ниже.
+                  </p>
+                ) : (
+                  <div className="tactics-move-list">
+                    {Array.from(
+                      { length: Math.ceil(history.length / 2) },
+                      (_, i) => (
+                        <div className="tactics-move-row" key={i}>
+                          <span>{i + 1}.</span>
+                          <span>{history[i * 2]}</span>
+                          <span>{history[i * 2 + 1] || ''}</span>
+                        </div>
+                      )
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <form
+                className="tactics-input"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  submitMove(answer);
+                }}
+              >
+                <label htmlFor="move-answer">Ваш ход</label>
+                <input
+                  id="move-answer"
+                  value={answer}
+                  onChange={(event) => setAnswer(event.target.value)}
+                  placeholder="Например, g6g7 или Qg7#"
+                  disabled={solved}
+                />
+                <button type="submit" disabled={solved}>
+                  Проверить
+                </button>
+              </form>
+
+              <p
+                className={`tactics-message ${
+                  solved ? 'success' : ''
+                }`}
+                aria-live="polite"
+              >
+                {message || 'Найдите лучший ход.'}
+              </p>
+            </section>
+
+            <section className="chess-board 333">
+              <div className="tactics-board-heading">
+                <div>
+                  <p className="title">Решение задачи</p>
+                  <p className="task-subtitle">
+                    {solved ? 'Задача решена' : 'Ход белых'}
+                  </p>
+                </div>
+                <span className="tactics-rating">
+                  +{solved ? task.rating : 0} очков
+                </span>
+              </div>
+
+              <div
+                className={`tactics-board ${
+                  blindMode && !showPieces ? 'blind-board' : ''
+                }`}
+              >
+                {Array.from({ length: 8 }, (_, row) =>
+                  Array.from({ length: 8 }, (_, col) => {
+                    const square = `${'abcdefgh'[col]}${8 - row}` as Square;
+                    const piece = game.get(square);
+                    const isDark = (row + col) % 2 === 0;
+                    const isSelected = selectedSquare === square;
+                    const isLastMove = game.history({ verbose: true }).slice(-1).some(
+                      (move) => move.from === square || move.to === square
+                    );
+
+                    const pieceKey = piece
+                      ? `${piece.color === 'w' ? 'w' : 'b'}${piece.type}`
+                      : '';
+
+                    return (
+                      <button
+                        key={square}
+                        type="button"
+                        aria-label={`${square}${piece ? `, фигура ${pieceKey}` : ''}`}
+                        className={[
+                          'tactics-square',
+                          isDark ? 'square-dark' : 'square-light',
+                          isSelected ? 'square-selected' : '',
+                          isLastMove ? 'square-last-move' : '',
+                        ].filter(Boolean).join(' ')}
+                        onClick={() => handleSquareClick(square)}
+                      >
+                        {piece && (
+                          <span
+                            className={`chess-piece ${
+                              piece.color === 'w' ? 'piece-white' : 'piece-black'
+                            }`}
+                          >
+                            {pieces[pieceKey]}
+                          </span>
+                        )}
+                        {col === 0 && (
+                          <span className="rank-coordinate">{8 - row}</span>
+                        )}
+                        {row === 7 && (
+                          <span className="file-coordinate">
+                            {'abcdefgh'[col]}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+
+              <div className="tactics-board-options">
+                <label>
+                  Сложность
+                  <select
+                    value={difficulty}
+                    onChange={(event) => {
+                      const value = event.target.value;
+                      setDifficulty(value);
+                      const index = value === 'all'
+                        ? 0
+                        : Math.max(0, tasks.findIndex(
+                            (item) => item.difficulty === value
+                          ));
+                      loadTask(index);
+                    }}
+                  >
+                    <option value="all">Все уровни</option>
+                    <option value="easy">Лёгкий</option>
+                    <option value="medium">Средний</option>
+                    <option value="hard">Сложный</option>
+                  </select>
+                </label>
+                <span className="tactics-total-score">
+                  Рейтинг: {score}
+                </span>
+              </div>
+
+              <div className="tactics-actions">
+                <button
+                  className="btn"
+                  onClick={() => loadTask(taskIndex + 1)}
+                >
+                  {solved ? 'Следующая задача' : 'Пропустить задачу'}
+                </button>
+                <button
+                  className="btn"
+                  onClick={() => loadTask(taskIndex)}
+                >
+                  Начать заново
+                </button>
+              </div>
+            </section>
+          </div>
+        </main>
+      </div>
+
+      <Modal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        title="Настройки игры"
+      >
+        <div className="setting-item">
+          <label htmlFor="blind-mode">Режим полной слепоты:</label>
+          <input
+            id="blind-mode"
+            type="checkbox"
+            checked={blindMode}
+            onChange={(event) => setBlindMode(event.target.checked)}
+          />
+        </div>
+        <div className="setting-item">
+          <label htmlFor="show-pieces">Показывать фигуры:</label>
+          <input
+            id="show-pieces"
+            type="checkbox"
+            checked={showPieces}
+            onChange={(event) => setShowPieces(event.target.checked)}
+          />
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={isHelpOpen}
+        onClose={() => setIsHelpOpen(false)}
+        title="Помощь и правила"
+      >
+        <p>
+          <strong>Blind Chess Master</strong> — тренажёр тактического
+          мышления и игры вслепую.
+        </p>
+        <p>Выберите фигуру, затем клетку назначения, либо введите ход:</p>
+        <ul>
+          <li><code>g6g7</code> — координатная запись.</li>
+          <li><code>Qg7#</code> — шахматная нотация.</li>
+        </ul>
+        <p>За верное решение начисляются очки.</p>
+      </Modal>
+    </>
+  );
 }
