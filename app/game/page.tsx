@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
+import MenuBtn from "@/src/components/menu-btn";
 import { Chess, type Square } from "chess.js";
 
 const Chessboard = dynamic(
@@ -247,69 +248,32 @@ export default function GamePage() {
   return (
     <div className="bcm-app-container">
       {/* Боковая панель */}
-      <aside className="bcm-sidebar">
-        <div className="bcm-brand">BLIND CHESS MASTER</div>
-
-        <div className="bcm-account-section">
-          <div className="bcm-account-label">АККАУНТ</div>
-          <div className="bcm-account-card">
-            <div className="bcm-avatar">
-              <Image
-                src="/user-icon.png"
-                width={64}
-                height={64}
-                alt="User Icon"
-              />
+      <aside className="menu-left">
+        <div className="menu-wrapper">
+          <div className="menu-top">
+            <div className="menu-after">
+              <p className="project-name">Blind chess master</p>
+              <div className="accaunt">
+                <p className="account-title">Аккаунт</p>
+                <div className="logo">
+                  <Image
+                    src="/user-icon.png"
+                    width={90}
+                    height={90}
+                    alt="User Icon"
+                  />
+                  <div className="info-group">
+                    <p>User123</p>
+                    <p>1600 elo</p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="bcm-account-info">
-              <div className="bcm-user-name">User123</div>
-              <div className="bcm-user-elo">1600 elo</div>
+            <hr />
+            <div className="menu-before">
+              <MenuBtn />
             </div>
           </div>
-        </div>
-
-        <nav className="bcm-nav">
-          <Link href="/" className="bcm-nav-item">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M4 11h6a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1zm10 0h6a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1zM4 21h6a1 1 0 0 0 1-1v-6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1zm10 0h6a1 1 0 0 0 1-1v-6a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1z" />
-            </svg>
-            <span>Меню</span>
-          </Link>
-        </nav>
-
-        <div className="bcm-sidebar-bottom">
-          <button
-            className="bcm-nav-item"
-            onClick={() => setIsSettingsOpen(true)}
-          >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <circle cx="12" cy="12" r="3"></circle>
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-            </svg>
-            <span>Настройки</span>
-          </button>
-          <button className="bcm-nav-item" onClick={() => setIsHelpOpen(true)}>
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <circle cx="12" cy="12" r="10"></circle>
-              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-              <line x1="12" y1="17" x2="12.01" y2="17"></line>
-            </svg>
-            <span>Помощь</span>
-          </button>
         </div>
       </aside>
 

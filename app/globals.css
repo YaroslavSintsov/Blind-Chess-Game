@@ -4059,3 +4059,489 @@ body:not(:has(.blind-game-layout)) .moves_panel_chess {
     transform: rotate(360deg);
   }
 }
+.blind-tactics-page {
+  display: flex;
+  min-height: 100vh;
+  background-color: #18181b;
+  color: #ffffff;
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+}
+
+/* --- ЛЕВАЯ ПАНЕЛЬ --- */
+.blind-tactics-page .menu-left {
+  width: 270px;
+  min-width: 270px;
+  background-color: #2b2b2e;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.blind-tactics-page .menu-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.blind-tactics-page .project-name {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  margin-bottom: 24px;
+  color: #ffffff;
+}
+
+.blind-tactics-page .account-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #a1a1aa;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+}
+
+.blind-tactics-page .logo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.blind-tactics-page .avatar-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background-color: #d4d4d8;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.blind-tactics-page .info-group .user-name {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+}
+
+.blind-tactics-page .info-group .user-elo {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e4e4e7;
+  margin: 0;
+}
+
+.sidebar-divider {
+  border: none;
+  border-top: 1px solid #3f3f46;
+  margin: 20px 0;
+}
+
+/* Прошлые задачи */
+.past-tasks-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.past-tasks-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.past-task-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: transparent;
+  border: none;
+  color: #e4e4e7;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 0;
+  text-align: left;
+  transition: opacity 0.15s;
+}
+
+.past-task-item:hover {
+  opacity: 0.85;
+}
+
+.status-indicator {
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.status-completed {
+  background-color: #39ff14;
+}
+
+.status-skipped {
+  background-color: transparent;
+  border: 1.5px solid #a1a1aa;
+}
+
+.status-progress {
+  background-color: #433e54;
+}
+
+.blind-tactics-page .menu-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 20px;
+}
+
+.blind-tactics-page .modal-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+/* --- ОСНОВНАЯ ОБЛАСТЬ --- */
+.blind-tactics-page .tactics-content {
+  flex: 1;
+  padding: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+}
+
+.blind-tactics-page .tactics-layout {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 28px;
+  width: 100%;
+  max-width: 1080px;
+}
+
+/* Средняя карточка с задачей */
+.task-info-card {
+  background-color: #2b2b2e;
+  border-radius: 20px;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.task-main-title {
+  font-size: 24px;
+  font-weight: 800;
+  margin: 0 0 16px 0;
+}
+
+.task-goal {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0 0 14px 0;
+  color: #f4f4f5;
+}
+
+.task-position-text {
+  font-size: 15px;
+  line-height: 1.5;
+  font-weight: 600;
+  color: #e4e4e7;
+  margin: 0;
+}
+
+.blind-history-box {
+  margin-top: 20px;
+  padding: 12px;
+  background-color: #202023;
+  border-radius: 12px;
+}
+
+.blind-history-label {
+  font-size: 12px;
+  color: #a1a1aa;
+  margin: 0 0 8px 0;
+}
+
+.blind-history-moves {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.history-pill {
+  background-color: #3a3647;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.blind-feedback {
+  margin-top: auto;
+  margin-bottom: 14px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.feedback-info {
+  background-color: #3a3647;
+  color: #e4e4e7;
+}
+
+.feedback-success {
+  background-color: rgba(57, 255, 20, 0.15);
+  border: 1px solid #39ff14;
+  color: #86efac;
+}
+
+/* Поле ввода хода */
+.move-input-box {
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  min-height: 150px;
+  justify-content: space-between;
+}
+
+.move-textarea {
+  width: 100%;
+  border: none;
+  outline: none;
+  resize: none;
+  font-size: 14px;
+  color: #18181b;
+  background: transparent;
+  font-family: inherit;
+  flex: 1;
+}
+
+.move-textarea::placeholder {
+  color: #9ca3af;
+}
+
+.move-submit-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.btn-submit-move {
+  background-color: #3e3a4d;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 22px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.btn-submit-move:hover:not(:disabled) {
+  background-color: #4f4a63;
+}
+
+.btn-submit-move:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* --- ПРАВАЯ КАРТОЧКА С ДОСКОЙ --- */
+.board-panel-card {
+  background-color: #2b2b2e;
+  border-radius: 20px;
+  padding: 24px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.board-with-coords {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 500px;
+}
+
+.coords-row {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  width: calc(100% - 44px);
+  text-align: center;
+  font-size: 13px;
+  color: #d4d4d8;
+  padding: 6px 0;
+}
+
+.board-middle-wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.coords-col {
+  display: grid;
+  grid-template-rows: repeat(8, 1fr);
+  height: 100%;
+  width: 22px;
+  align-items: center;
+  text-align: center;
+  font-size: 13px;
+  color: #d4d4d8;
+}
+
+.blind-chess-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  width: 100%;
+  aspect-ratio: 1 / 1;
+}
+
+.blind-square {
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: box-shadow 0.12s;
+}
+
+.sq-light {
+  background-color: #ffffff;
+}
+
+.sq-dark {
+  background-color: #3e3a4d;
+}
+
+.sq-selected {
+  box-shadow: inset 0 0 0 3px #facc15;
+}
+
+.sq-hint {
+  box-shadow: inset 0 0 0 4px #39ff14;
+}
+
+.chess-piece {
+  font-size: 36px;
+  line-height: 1;
+  user-select: none;
+}
+
+.piece-w {
+  color: #f8fafc;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+}
+
+.piece-b {
+  color: #09090b;
+}
+
+/* Нижний фиолетовый блок управления */
+.board-controls-box {
+  width: 100%;
+  max-width: 500px;
+  background-color: #3a3647;
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin-top: 20px;
+}
+
+.controls-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.difficulty-control {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.difficulty-control label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #e4e4e7;
+}
+
+.difficulty-select {
+  background-color: #2b2b2e;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.rating-display {
+  font-size: 22px;
+  font-weight: 800;
+  color: #ffffff;
+  padding-top: 12px;
+}
+
+.controls-buttons-row {
+  display: flex;
+  gap: 16px;
+}
+
+.btn-control {
+  background-color: #2b2b2e;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.btn-control:hover:not(:disabled) {
+  background-color: #202023;
+}
+
+.btn-control:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 1024px) {
+  .blind-tactics-page {
+    flex-direction: column;
+  }
+  .blind-tactics-page .menu-left {
+    width: 100%;
+  }
+  .blind-tactics-page .tactics-layout {
+    grid-template-columns: 1fr;
+  }
+}
